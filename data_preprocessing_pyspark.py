@@ -26,8 +26,9 @@ def load_data(spark, years: list):
         filename = f'./data/{year}.csv'
         if year == years[0]:
             dataframes = spark.read.csv(filename, header=True, schema=schema)
-        this_data = spark.read.csv(filename, header=True, schema=schema)
-        dataframes.union(this_data)
+        else:
+            this_data = spark.read.csv(filename, header=True, schema=schema)
+            dataframes.union(this_data)
     sqf_data = dataframes[0]
 
     return sqf_data
@@ -36,7 +37,6 @@ def main(spark, years: list):
     start_time = time.time()
 
     sqf_data = load_data(spark, years)
-    print( "shape: ", sqf_data.count())
     sqf_data.show()
     print( "shape: ", sqf_data.count())
 
