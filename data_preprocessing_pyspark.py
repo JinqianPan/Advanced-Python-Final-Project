@@ -36,6 +36,7 @@ def main(spark, years: list):
     start_time = time.time()
 
     sqf_data = load_data(spark, years)
+    print( "shape: ", sqf_data.count())
     sqf_data.show()
     print( "shape: ", sqf_data.count())
 
