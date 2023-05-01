@@ -157,6 +157,5 @@ if __name__ == "__main__":
     # Create the spark session object
     spark = SparkSession.builder.appName('preprocessing').getOrCreate()
 
-    # years = [2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016]
-    years = [2008, 2009]
+    years = [2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016]
     main(spark, years)
