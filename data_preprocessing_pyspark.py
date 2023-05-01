@@ -139,11 +139,12 @@ def main(spark, years: list):
     sqf_data = sqf_data\
         .withColumn('suspect_age', 
                     sqf_data['age'].cast(IntegerType()))\
-        .filter((sqf_data['suspect_age'] >= 5) & 
-                (sqf_data['suspect_age'] <= 100))\
         .withColumn('suspect_height', 
                     sqf_data['ht_feet'] + (sqf_data['ht_inch'] / 12))\
-        .withColumn('suspect_weight', sqf_data['weight'])\
+        .withColumn('suspect_weight', sqf_data['weight'])
+    
+    sqf_data = sqf_data\
+        .filter((sqf_data['suspect_age'] >= 5) & (sqf_data['suspect_age'] <= 100))\
         .filter(sqf_data['suspect_weight'] < 700)
 
     sqf_data = sqf_data.drop(*drop_column_names)
