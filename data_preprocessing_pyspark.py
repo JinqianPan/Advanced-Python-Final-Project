@@ -1,7 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+'''Usage:
+    $ spark-submit --deploy-mode client data_preprocessing_pyspark.py
+
+'''
+
 from pyspark.sql import SparkSession
 import time
 
-def load_data(years: list):
+def load_data(spark, years: list):
 
     schema = 'year INT, pistol STRING, riflshot STRING, asltweap STRING, \
         machgun STRING, knifcuti STRING, othrweap STRING, pct INT, \
@@ -25,10 +32,10 @@ def load_data(years: list):
 
     return sqf_data
 
-def main(years: list):
+def main(spark, years: list):
     start_time = time.time()
 
-    sqf_data = load_data(years)
+    sqf_data = load_data(spark, years)
     sqf_data.show()
     print( "shape: ", sqf_data.count())
 
