@@ -10,8 +10,8 @@ import time
 
 def load_data(spark, years: list):
 
-    schema = 'year INT, pistol STRING, riflshot STRING, asltweap STRING, \
-        machgun STRING, knifcuti STRING, othrweap STRING, pct INT, \
+    schema = 'year STRING, pistol STRING, riflshot STRING, asltweap STRING, \
+        machgun STRING, knifcuti STRING, othrweap STRING, pct STRING, \
         trhsloc STRING, ac_assoc STRING, ac_cgdir STRING, ac_rept STRING, \
         ac_evasv STRING, ac_incid STRING, ac_inves STRING, ac_proxm STRING, \
         ac_time STRING, ac_stsnd STRING, ac_other STRING, cs_objcs STRING, \
@@ -24,9 +24,9 @@ def load_data(spark, years: list):
     for year in years:
         filename = f'./data/{year}.csv'
         if year == years[0]:
-            dataframes = spark.read.csv(filename, header=True, schema=schema)
+            dataframes = spark.read.csv(filename, header=True, schema=schema,  nullValue=' ')
         else:
-            this_data = spark.read.csv(filename, header=True, schema=schema)
+            this_data = spark.read.csv(filename, header=True, schema=schema, nullValue=' ')
             dataframes.union(this_data)
     sqf_data = dataframes
 
