@@ -28,7 +28,7 @@ def load_data(spark, years: list):
         else:
             this_data = spark.read.csv(filename, header=True, schema=schema)
             dataframes.union(this_data)
-    sqf_data = dataframes[0]
+    sqf_data = dataframes
 
     return sqf_data
 
