@@ -6,6 +6,8 @@
 '''
 
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf
+from pyspark.sql.types import IntegerType, BooleanType, StringType
 import time
 
 def load_data(spark, years: list):
@@ -25,12 +27,10 @@ def load_data(spark, years: list):
         if year == years[0]:
             sqf_data = spark.read.csv(filename, header=True, nullValue=' ')
             sqf_data = sqf_data.select(column_names)
-            print( "shape: ", sqf_data.count())
         else:
             this_data = spark.read.csv(filename, header=True, nullValue=' ')
             this_data = this_data.select(column_names)
             sqf_data = sqf_data.union(this_data)
-            print( "shape: ", sqf_data.count())
 
     return sqf_data
 
@@ -38,8 +38,18 @@ def main(spark, years: list):
     start_time = time.time()
 
     sqf_data = load_data(spark, years)
+    print( "shape: ", sqf_data.count() )
+
+    sqf_data = sqf_data.na.drop(subset=['timestop'])
+
+    sqf_data = sqf_data \
+        .withColumn('month', sqf_data['datestop'].substr(1, 2).cast(IntegerType())) \
+        .withColumn('day', sqf_data['datestop'].substr(3, 2).cast(IntegerType())) \
+        .withColumn('year', sqf_data['year'].cast(IntegerType())) \
+        .withColumn('time_period', sqf_data['timestop'].substr(1, 2).cast(IntegerType()))
+    
+    sqf_data = sqf_data.drop(*['datestop', 'timestop'])
     sqf_data.show()
-    print( "shape: ", sqf_data.count())
 
     print("--- Took: %s seconds ---\n" % (time.time()-start_time))
 
