@@ -150,9 +150,9 @@ def main(spark, years: list):
     sqf_data = sqf_data.drop(*drop_column_names)
     sqf_data.show(5)
 
-    sqf_data.write.csv('./data/sqf_data.csv', header=True, mode='overwrite', encoding='utf-8')
-
     print("--- Took: %s seconds ---\n" % (time.time()-start_time))
+
+    sqf_data.write.csv('./data/sqf_data.csv', header=True, mode='overwrite', encoding='utf-8')
 
 if __name__ == "__main__":
 
