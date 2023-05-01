@@ -36,6 +36,7 @@ def load_data(spark, years: list):
             this_data = this_data.withColumnRenamed('dettypCM', 'dettypcm')\
                                     .withColumnRenamed('lineCM', 'linecm')\
                                     .withColumnRenamed('detailCM', 'detailcm')
+        return this_data
 
     for year in years:
         filename = f'./data/{year}.csv'
@@ -44,7 +45,7 @@ def load_data(spark, years: list):
             sqf_data = prepro(sqf_data)
         else:
             this_data = spark.read.csv(filename, header=True, nullValue=' ')
-            sqf_data = prepro(sqf_data)
+            this_data = prepro(this_data)
             sqf_data.union(this_data)
 
     sqf_data.select(column_names)
