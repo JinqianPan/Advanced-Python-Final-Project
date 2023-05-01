@@ -148,7 +148,9 @@ def main(spark, years: list):
         .filter(sqf_data['suspect_weight'] < 700)
 
     sqf_data = sqf_data.drop(*drop_column_names)
-    sqf_data.show()
+    sqf_data.show(5)
+
+    sqf_data.write.csv('./data/sqf_data.csv', header=True, mode='overwrite', encoding='utf-8')
 
     print("--- Took: %s seconds ---\n" % (time.time()-start_time))
 
@@ -157,5 +159,5 @@ if __name__ == "__main__":
     # Create the spark session object
     spark = SparkSession.builder.appName('preprocessing').getOrCreate()
 
-    years = [2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016]
+    years = [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
     main(spark, years)
