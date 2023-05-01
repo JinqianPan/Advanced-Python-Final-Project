@@ -131,10 +131,6 @@ def main(years: list):
                                 sqf_data['found_machinegun'] |
                                 sqf_data['found_knife'] | 
                                 sqf_data['found_other'])
-    
-    # sqf_data['location_housing'] = sqf_data['trhsloc'].replace(location_housing_recode_dict).fillna('neither')
-    # sqf_data['suspect_build'] = sqf_data['build'].replace(build_recode_dict)
-    # sqf_data['suspect_sex'] = sqf_data['sex'].replace(sex_recode_dict)
 
     sqf_data = sqf_data.drop(sqf_data[sqf_data['age'] == '**'].index)
     sqf_data = sqf_data.dropna(subset=['age'])
@@ -149,8 +145,6 @@ def main(years: list):
 
     # replace suspect.weight >= 700 with NA
     sqf_data = sqf_data.loc[sqf_data['suspect_weight'] < 700]
-    # sqf_data.loc[sqf_data['suspect_weight'] >= 700, 'suspect_weight'] = pd.NA
-    # sqf_data = sqf_data.dropna(subset=['suspect_weight'])
 
     sqf_data = sqf_data.drop(columns=drop_column_names)
 
