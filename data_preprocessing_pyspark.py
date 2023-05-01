@@ -45,14 +45,16 @@ def main(spark, years: list):
                 "pistol", "riflshot", "asltweap", "knifcuti", "machgun", 
                 "othrweap"]
     
-    location_housing_recode_dict = {'P': 'neither', 
-                                    'H': 'housing', 
-                                    'T': 'transit'}
-    
-    build_recode_dict = {'H': 'heavy', 'M': 'medium', 'T': 'thin', 
-                         'U': 'muscular', 'Z': 'unknown'}
-    
-    sex_recode_dict = {'M': 'male', 'F': 'female'}
+    drop_column_names = ['pistol', 'riflshot', 'asltweap', 'machgun', 
+                'knifcuti', 'othrweap', 'pct', 'trhsloc', 
+                'ac_assoc', 'ac_cgdir', 'ac_rept', 'ac_evasv', 'ac_incid', 
+                'ac_inves', 'ac_proxm', 'ac_time', 'ac_stsnd', 'ac_other',
+                'cs_objcs', 'cs_descr', 'cs_casng', 'cs_lkout', 'cs_cloth', 
+                'cs_drgtr', 'cs_furtv', 'cs_vcrim', 'cs_bulge', 'cs_other', 
+                'age', 'build', 'sex', 'ht_feet', 'ht_inch', 'weight', 
+                'inout', 'radio', 'perobs', 'datestop', 'timestop', 
+                'found_pistol', 'found_rifle', 'found_assault', 
+                'found_machinegun', 'found_knife', 'found_other']
     
     recode_yn_udf = udf(lambda f: True if f == 'Y' else False if f == 'N' else None, BooleanType())
     recode_io_udf = udf(lambda f: True if f == 'I' else False if f == 'O' else None, BooleanType())
@@ -83,9 +85,68 @@ def main(spark, years: list):
         .withColumn('found_machinegun', recode_yn_udf(sqf_data['machgun']))\
         .withColumn('found_knife', recode_yn_udf(sqf_data['knifcuti']))\
         .withColumn('found_other', recode_yn_udf(sqf_data['othrweap']))\
-        .withColumn('precinct', sqf_data['pct'].cast(IntegerType()))
+        .withColumn('precinct', sqf_data['pct'].cast(IntegerType()))\
+        .withColumn('additional_associating', recode_yn_udf(sqf_data['ac_assoc']))\
+        .withColumn('additional_direction', recode_yn_udf(sqf_data['ac_cgdir']))\
+        .withColumn('additional_report', recode_yn_udf(sqf_data['ac_rept']))\
+        .withColumn('additional_evasive', recode_yn_udf(sqf_data['ac_evasv']))\
+        .withColumn('additional_highcrime', recode_yn_udf(sqf_data['ac_incid']))\
+        .withColumn('additional_investigation', recode_yn_udf(sqf_data['ac_inves']))\
+        .withColumn('additional_proximity', recode_yn_udf(sqf_data['ac_proxm']))\
+        .withColumn('additional_time', recode_yn_udf(sqf_data['ac_time']))\
+        .withColumn('additional_sights', recode_yn_udf(sqf_data['ac_stsnd']))\
+        .withColumn('additional_other', recode_yn_udf(sqf_data['ac_other']))\
+        .withColumn('stopped_bulge', recode_yn_udf(sqf_data['cs_objcs']))\
+        .withColumn('stopped_object', recode_yn_udf(sqf_data['cs_descr']))\
+        .withColumn('stopped_casing', recode_yn_udf(sqf_data['cs_casng']))\
+        .withColumn('stopped_clothing', recode_yn_udf(sqf_data['cs_lkout']))\
+        .withColumn('stopped_desc', recode_yn_udf(sqf_data['cs_cloth']))\
+        .withColumn('stopped_drugs', recode_yn_udf(sqf_data['cs_drgtr']))\
+        .withColumn('stopped_furtive', recode_yn_udf(sqf_data['cs_furtv']))\
+        .withColumn('stopped_lookout', recode_yn_udf(sqf_data['cs_vcrim']))\
+        .withColumn('stopped_violent', recode_yn_udf(sqf_data['cs_bulge']))\
+        .withColumn('stopped_other', recode_yn_udf(sqf_data['cs_other']))\
+        .withColumn('inside', recode_io_udf(sqf_data['inout']))\
+        .withColumn('observation_period', sqf_data['perobs'].cast(IntegerType()))\
+        .withColumn('radio_run', recode_yn_udf(sqf_data['radio']))\
+        .withColumn('location_housing', 
+                    when(sqf_data['trhsloc'] == 'P', 'neither')\
+                        .when(sqf_data['trhsloc'] == 'H', 'housing')\
+                        .when(sqf_data['trhsloc'] == 'T', 'transit')\
+                        .otherwise('neither'))\
+        .withColumn('suspect_build',
+                    when(sqf_data['build'] == 'H', 'heavy')\
+                        .when(sqf_data['build'] == 'M', 'medium')\
+                        .when(sqf_data['build'] == 'T', 'thin')\
+                        .when(sqf_data['build'] == 'U', 'muscular')\
+                        .when(sqf_data['build'] == 'Z', 'unknown')\
+                        .otherwise(sqf_data['build']))\
+        .withColumn('suspect_sex',
+                    when(sqf_data['sex'] == 'M', 'male')\
+                        .when(sqf_data['sex'] == 'F', 'female')\
+                        .otherwise(sqf_data['sex']))
+    
+    sqf_data = sqf_data.withColumn('found_weapon', 
+                               (sqf_data['found_pistol'] | 
+                                sqf_data['found_rifle'] |
+                                sqf_data['found_assault'] | 
+                                sqf_data['found_machinegun'] |
+                                sqf_data['found_knife'] | 
+                                sqf_data['found_other']))
 
-    sqf_data = sqf_data.drop(*['datestop', 'timestop'])
+    sqf_data = sqf_data.filter(sqf_data['age'] != '**')
+    sqf_data = sqf_data.filter(sqf_data['age'].isNotNull())
+    sqf_data = sqf_data\
+        .withColumn('suspect_age', 
+                    sqf_data['age'].cast(IntegerType()))\
+        .filter((sqf_data['suspect_age'] >= 5) & 
+                (sqf_data['suspect_age'] <= 100))\
+        .withColumn('suspect_height', 
+                    sqf_data['ht_feet'] + (sqf_data['ht_inch'] / 12))\
+        .withColumn('suspect_weight', sqf_data['weight'])\
+        .filter(sqf_data['suspect_weight'] < 700)
+
+    sqf_data = sqf_data.drop(*drop_column_names)
     sqf_data.show()
 
     print("--- Took: %s seconds ---\n" % (time.time()-start_time))
