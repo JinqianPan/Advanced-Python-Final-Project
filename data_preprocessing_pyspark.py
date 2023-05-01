@@ -19,27 +19,18 @@ def load_data(spark, years: list):
                     'age', 'build', 'sex', 'ht_feet', 'ht_inch', 'weight', 
                     'inout', 'radio', 'perobs', 'datestop', 'timestop']
     
-    def prepro(year, this_data):
-        if year in range(2011, 2017):
-                this_data = this_data.drop('forceuse')
-        if year in range(2013, 2017):
-            this_data = this_data.withColumnRenamed('dettypCM', 'dettypcm')\
-                                    .withColumnRenamed('lineCM', 'linecm')\
-                                    .withColumnRenamed('detailCM', 'detailcm')
-        return this_data
-
     for year in years:
         filename = f'./data/{year}.csv'
         print(filename)
         if year == years[0]:
             sqf_data = spark.read.csv(filename, header=True, nullValue=' ')
-            sqf_data = prepro(year, sqf_data)
+            sqf_data = sqf_data.select(column_names)
+            sqf_data.show()
         else:
             this_data = spark.read.csv(filename, header=True, nullValue=' ')
-            this_data = prepro(year, this_data)
+            this_data = this_data.select(column_names)
+            this_data.show()
             sqf_data.union(this_data)
-
-    sqf_data = sqf_data.select(column_names)
 
     return sqf_data
 
