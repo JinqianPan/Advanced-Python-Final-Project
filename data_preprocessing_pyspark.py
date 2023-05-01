@@ -29,7 +29,7 @@ def load_data(spark, years: list):
         else:
             this_data = spark.read.csv(filename, header=True, nullValue=' ')
             this_data = this_data.select(column_names)
-            sqf_data.union(this_data)
+            sqf_data = sqf_data.union(this_data)
             print( "shape: ", sqf_data.count())
 
     return sqf_data
