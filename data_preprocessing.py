@@ -1,4 +1,41 @@
 import pandas as pd
+import time
+
+column_names = ['year', 'pistol', 'riflshot', 'asltweap', 'machgun', 
+                    'knifcuti', 'othrweap', 'pct', 'trhsloc', 
+                    'ac_assoc', 'ac_cgdir', 'ac_rept', 'ac_evasv', 'ac_incid', 
+                    'ac_inves', 'ac_proxm', 'ac_time', 'ac_stsnd', 'ac_other',
+                    'cs_objcs', 'cs_descr', 'cs_casng', 'cs_lkout', 'cs_cloth', 
+                    'cs_drgtr', 'cs_furtv', 'cs_vcrim', 'cs_bulge', 'cs_other', 
+                    'age', 'build', 'sex', 'ht_feet', 'ht_inch', 'weight', 
+                    'inout', 'radio', 'perobs', 'datestop', 'timestop']
+    
+coln = ["cs_objcs", "cs_descr", "cs_casng","cs_lkout", "cs_cloth", 
+            "cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other",
+            "ac_rept", "ac_inves", "ac_proxm", "ac_evasv", "ac_assoc", 
+            "ac_cgdir", "ac_incid", "ac_time", "ac_stsnd", "ac_other", 
+            "pistol", "riflshot", "asltweap", "knifcuti", "machgun", 
+            "othrweap"]
+
+location_housing_recode_dict = {'P': 'neither', 
+                                'H': 'housing', 
+                                'T': 'transit'}
+
+build_recode_dict = {'H': 'heavy', 'M': 'medium', 'T': 'thin', 
+                        'U': 'muscular', 'Z': 'unknown'}
+
+sex_recode_dict = {'M': 'male', 'F': 'female'}
+
+drop_column_names = ['pistol', 'riflshot', 'asltweap', 'machgun', 
+            'knifcuti', 'othrweap', 'pct', 'trhsloc', 
+            'ac_assoc', 'ac_cgdir', 'ac_rept', 'ac_evasv', 'ac_incid', 
+            'ac_inves', 'ac_proxm', 'ac_time', 'ac_stsnd', 'ac_other',
+            'cs_objcs', 'cs_descr', 'cs_casng', 'cs_lkout', 'cs_cloth', 
+            'cs_drgtr', 'cs_furtv', 'cs_vcrim', 'cs_bulge', 'cs_other', 
+            'age', 'build', 'sex', 'ht_feet', 'ht_inch', 'weight', 
+            'inout', 'radio', 'perobs', 'datestop', 'timestop', 
+            'found_pistol', 'found_rifle', 'found_assault', 
+            'found_machinegun', 'found_knife', 'found_other']
 
 def load_data(years: list):
     dataframes = []
@@ -34,43 +71,9 @@ def recode_io(f):
     return f_new
 
 def main(years: list):
+    start_time = time.time()
+
     sqf_data = load_data(years)
-
-    column_names = ['year', 'pistol', 'riflshot', 'asltweap', 'machgun', 
-                    'knifcuti', 'othrweap', 'pct', 'trhsloc', 
-                    'ac_assoc', 'ac_cgdir', 'ac_rept', 'ac_evasv', 'ac_incid', 
-                    'ac_inves', 'ac_proxm', 'ac_time', 'ac_stsnd', 'ac_other',
-                    'cs_objcs', 'cs_descr', 'cs_casng', 'cs_lkout', 'cs_cloth', 
-                    'cs_drgtr', 'cs_furtv', 'cs_vcrim', 'cs_bulge', 'cs_other', 
-                    'age', 'build', 'sex', 'ht_feet', 'ht_inch', 'weight', 
-                    'inout', 'radio', 'perobs', 'datestop', 'timestop']
-    
-    coln = ["cs_objcs", "cs_descr", "cs_casng","cs_lkout", "cs_cloth", 
-                "cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other",
-                "ac_rept", "ac_inves", "ac_proxm", "ac_evasv", "ac_assoc", 
-                "ac_cgdir", "ac_incid", "ac_time", "ac_stsnd", "ac_other", 
-                "pistol", "riflshot", "asltweap", "knifcuti", "machgun", 
-                "othrweap"]
-    
-    location_housing_recode_dict = {'P': 'neither', 
-                                    'H': 'housing', 
-                                    'T': 'transit'}
-    
-    build_recode_dict = {'H': 'heavy', 'M': 'medium', 'T': 'thin', 
-                         'U': 'muscular', 'Z': 'unknown'}
-    
-    sex_recode_dict = {'M': 'male', 'F': 'female'}
-
-    drop_column_names = ['pistol', 'riflshot', 'asltweap', 'machgun', 
-                'knifcuti', 'othrweap', 'pct', 'trhsloc', 
-                'ac_assoc', 'ac_cgdir', 'ac_rept', 'ac_evasv', 'ac_incid', 
-                'ac_inves', 'ac_proxm', 'ac_time', 'ac_stsnd', 'ac_other',
-                'cs_objcs', 'cs_descr', 'cs_casng', 'cs_lkout', 'cs_cloth', 
-                'cs_drgtr', 'cs_furtv', 'cs_vcrim', 'cs_bulge', 'cs_other', 
-                'age', 'build', 'sex', 'ht_feet', 'ht_inch', 'weight', 
-                'inout', 'radio', 'perobs', 'datestop', 'timestop', 
-                'found_pistol', 'found_rifle', 'found_assault', 
-                'found_machinegun', 'found_knife', 'found_other']
 
     sqf_data = sqf_data[column_names]
     sqf_data = sqf_data.dropna(subset=['timestop'])
@@ -147,10 +150,11 @@ def main(years: list):
     sqf_data = sqf_data.loc[sqf_data['suspect_weight'] < 700]
 
     sqf_data = sqf_data.drop(columns=drop_column_names)
+    print("--- Took: %s seconds ---\n" % (time.time()-start_time))
 
     sqf_data.to_csv('./data/sqf_data.csv', index=False)
 
 
 if __name__ == "__main__":
-    years = [2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016]
+    years = [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
     main(years)
