@@ -8,6 +8,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 from pyspark.sql.types import IntegerType, BooleanType, StringType
+from pyspark.sql.functions import when
 import time
 
 def load_data(spark, years: list):
@@ -37,6 +38,13 @@ def load_data(spark, years: list):
 def main(spark, years: list):
     start_time = time.time()
 
+    coln = ["cs_objcs", "cs_descr", "cs_casng","cs_lkout", "cs_cloth", 
+                "cs_drgtr", "cs_furtv", "cs_vcrim", "cs_bulge", "cs_other",
+                "ac_rept", "ac_inves", "ac_proxm", "ac_evasv", "ac_assoc", 
+                "ac_cgdir", "ac_incid", "ac_time", "ac_stsnd", "ac_other", 
+                "pistol", "riflshot", "asltweap", "knifcuti", "machgun", 
+                "othrweap"]
+
     sqf_data = load_data(spark, years)
     print( "shape: ", sqf_data.count() )
 
@@ -47,6 +55,13 @@ def main(spark, years: list):
         .withColumn('day', sqf_data['datestop'].substr(3, 2).cast(IntegerType())) \
         .withColumn('year', sqf_data['year'].cast(IntegerType())) \
         .withColumn('time_period', sqf_data['timestop'].substr(1, 2).cast(IntegerType()))
+    
+    if 2014 in years:
+        for i in coln:
+            sqf_data = sqf_data \
+                .withColumn(i, when((sqf_data['year'] == 2014) & (sqf_data[i] == 1), 'Y')\
+                            .when((sqf_data['year'] == 2014) & sqf_data[i].isNull(), 'N')\
+                            .otherwise(sqf_data[i]))
     
     sqf_data = sqf_data.drop(*['datestop', 'timestop'])
     sqf_data.show()
