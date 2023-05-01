@@ -21,7 +21,6 @@ def load_data(spark, years: list):
         ht_inch INT, weight INT, inout STRING, radio STRING, perobs STRING, \
         datestop STRING, timestop STRING'
 
-    dataframes = []
     for year in years:
         filename = f'./data/{year}.csv'
         if year == years[0]:
