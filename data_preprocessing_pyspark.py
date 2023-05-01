@@ -30,6 +30,7 @@ def load_data(spark, years: list):
 
     for year in years:
         filename = f'./data/{year}.csv'
+        print(filename)
         if year == years[0]:
             sqf_data = spark.read.csv(filename, header=True, nullValue=' ')
             sqf_data = prepro(year, sqf_data)
