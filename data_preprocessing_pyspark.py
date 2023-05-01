@@ -44,6 +44,19 @@ def main(spark, years: list):
                 "ac_cgdir", "ac_incid", "ac_time", "ac_stsnd", "ac_other", 
                 "pistol", "riflshot", "asltweap", "knifcuti", "machgun", 
                 "othrweap"]
+    
+    location_housing_recode_dict = {'P': 'neither', 
+                                    'H': 'housing', 
+                                    'T': 'transit'}
+    
+    build_recode_dict = {'H': 'heavy', 'M': 'medium', 'T': 'thin', 
+                         'U': 'muscular', 'Z': 'unknown'}
+    
+    sex_recode_dict = {'M': 'male', 'F': 'female'}
+    
+    recode_yn_udf = udf(lambda f: True if f == 'Y' else False if f == 'N' else None, BooleanType())
+    recode_io_udf = udf(lambda f: True if f == 'I' else False if f == 'O' else None, BooleanType())
+
 
     sqf_data = load_data(spark, years)
     print( "shape: ", sqf_data.count() )
@@ -63,6 +76,15 @@ def main(spark, years: list):
                             .when((sqf_data['year'] == 2014) & sqf_data[i].isNull(), 'N')\
                             .otherwise(sqf_data[i]))
     
+    sqf_data = sqf_data \
+        .withColumn('found_pistol', recode_yn_udf(sqf_data['pistol']))\
+        .withColumn('found_rifle', recode_yn_udf(sqf_data['riflshot']))\
+        .withColumn('found_assault', recode_yn_udf(sqf_data['asltweap']))\
+        .withColumn('found_machinegun', recode_yn_udf(sqf_data['machgun']))\
+        .withColumn('found_knife', recode_yn_udf(sqf_data['knifcuti']))\
+        .withColumn('found_other', recode_yn_udf(sqf_data['othrweap']))\
+        .withColumn('precinct', sqf_data['pct'].cast(IntegerType()))
+
     sqf_data = sqf_data.drop(*['datestop', 'timestop'])
     sqf_data.show()
 
