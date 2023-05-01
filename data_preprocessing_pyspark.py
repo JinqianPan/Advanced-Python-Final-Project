@@ -25,12 +25,12 @@ def load_data(spark, years: list):
         if year == years[0]:
             sqf_data = spark.read.csv(filename, header=True, nullValue=' ')
             sqf_data = sqf_data.select(column_names)
-            sqf_data.show()
+            print( "shape: ", sqf_data.count())
         else:
             this_data = spark.read.csv(filename, header=True, nullValue=' ')
             this_data = this_data.select(column_names)
-            this_data.show()
             sqf_data.union(this_data)
+            print( "shape: ", sqf_data.count())
 
     return sqf_data
 
@@ -48,6 +48,6 @@ if __name__ == "__main__":
     # Create the spark session object
     spark = SparkSession.builder.appName('preprocessing').getOrCreate()
 
-    years = [2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016]
-
+    # years = [2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016]
+    years = [2008, 2009]
     main(spark, years)
