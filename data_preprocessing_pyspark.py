@@ -17,9 +17,9 @@ def load_data(spark, years: list):
         ac_time STRING, ac_stsnd STRING, ac_other STRING, cs_objcs STRING, \
         cs_descr STRING, cs_casng STRING, cs_lkout STRING, cs_cloth STRING, \
         cs_drgtr STRING, cs_furtv STRING, cs_vcrim STRING, cs_bulge STRING, \
-        cs_other STRING, age INT, build STRING, sex STRING, ht_feet INT, \
-        ht_inch INT, weight INT, inout STRING, radio STRING, perobs STRING, \
-        datestop STRING, timestop STRING'
+        cs_other STRING, age STRING, build STRING, sex STRING, ht_feet STRING, \
+        ht_inch STRING, weight STRING, inout STRING, radio STRING, \
+        perobs STRING, datestop STRING, timestop STRING'
 
     for year in years:
         filename = f'./data/{year}.csv'
