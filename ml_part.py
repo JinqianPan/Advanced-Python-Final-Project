@@ -7,6 +7,8 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 import xgboost as xgb
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+
 
 
 sqf_data = pd.read_csv('./data/sqf_data.csv')
@@ -83,13 +85,13 @@ print('XGBoost Feature Importances:\n', xgb_feature_importances)
 
 # Generate predictions using each model and calculate accuracy
 logreg_pred = logreg_pipeline.predict(X_test)
-logreg_acc = accuracy_score(y_test, logreg_pred)
-print('Logistic Regression Accuracy:', logreg_acc)
+logreg_eval = classification_report(y_test, logreg_pred)
+print('Logistic Regression report:', logreg_eval)
 
 rf_pred = rf_pipeline.predict(X_test)
-rf_acc = accuracy_score(y_test, rf_pred)
-print('RFM Accuracy:', rf_acc)
+rf_eval = classification_report(y_test, rf_pred)
+print('RFM report:', rf_eval)
 
 xgb_pred = xgb_pipeline.predict(X_test)
-xgb_acc = accuracy_score(y_test, xgb_pred)
-print('Xgboost Accuracy:', rf_acc)
+xgb_eval = classification_report(y_test, xgb_pred)
+print('Xgboost report:', rf_eval)
