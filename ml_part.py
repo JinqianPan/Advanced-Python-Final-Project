@@ -1,17 +1,17 @@
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+import xgboost as xgb
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-import xgboost as xgb
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 
 
-
 sqf_data = pd.read_csv('./data/sqf_data.csv')
+
 
 # Define predictor variables and target variable
 X = sqf_data.drop(columns=['found_weapon', 'year'])
@@ -20,6 +20,10 @@ y = sqf_data['found_weapon']
 # Define numeric and categorical features
 numeric_cols = X.select_dtypes(include=['int64', 'float64']).columns
 categorical_cols = X.select_dtypes(include=['object', 'bool']).columns
+
+# Define class weight
+class_weights = {0: 1, 1: len(sqf_data[sqf_data.found_weapon == 0])/len(sqf_data[sqf_data.found_weapon == 1])}
+
 
 # Create preprocessor
 preprocessor = ColumnTransformer(
@@ -30,19 +34,19 @@ preprocessor = ColumnTransformer(
 # Create a pipeline with the preprocessor and logistic regression estimator
 logreg_pipeline = Pipeline(steps=[
     ('preprocessor', preprocessor),
-    ('classifier', LogisticRegression(max_iter=1000))
+    ('classifier', LogisticRegression(max_iter=1000, class_weight=class_weights))
 ])
 
 # Create a pipeline with the preprocessor and random forest estimator
 rf_pipeline = Pipeline(steps=[
     ('preprocessor', preprocessor),
-    ('classifier', RandomForestClassifier())
+    ('classifier', RandomForestClassifier(class_weight=class_weights))
 ])
 
 # Create a pipeline with the preprocessor and XGBoost estimator
 xgb_pipeline = Pipeline(steps=[
     ('preprocessor', preprocessor),
-    ('classifier', xgb.XGBClassifier())
+    ('classifier', xgb.XGBClassifier(scale_pos_weight=class_weights[0]/class_weights[1]))
 ])
 
 # Split the dataset into training and test sets
