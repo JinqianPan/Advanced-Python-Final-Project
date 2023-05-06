@@ -21,3 +21,7 @@ Python file: Code optimized by PySpark.
 4. ml_part.py
 
 Python file: The machine learning part of this project.
+
+5. eda_part1.ipynb and eda_part2.ipynb
+
+Jupyter Notebook: EDA code.
